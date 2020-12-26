@@ -5,7 +5,7 @@
 
 const char C = 'C', M = 'M', Y = 'Y', K = 'K';
 const int DATA_SIZE = 15;
-const int CHANCE_OF_DUPLICATION = 70;
+const int CHANCE_OF_DUPLICATION = 90;
 
 void append(char* base, char suffix){
     int len = strlen(base);
@@ -81,8 +81,41 @@ void move4chars(char* data, int index){
     strncpy(data+beg_len+end_len, mid, mid_len);
 }
 
+bool isSorted(const char* data, int size){
+    if(data == nullptr || size <= 0){
+        throw;
+    }
+
+    bool notSorted= false;
+    int i=1;
+    while(i != size) {
+        char current = data[i];
+        char previous = data[i - 1];
+
+        if (current == C) {
+            if (previous == M || previous == Y || previous == K)  {
+                notSorted = true;
+            }
+        }else if( current == M) {
+            if (previous == Y || previous == K) {
+                notSorted = true;
+            }
+        }else if( current == Y) {
+            if (previous == K) {
+                notSorted = true;
+            }
+        }
+
+        if(notSorted) {
+            return false;
+        }
+        ++i;
+    }
+    return true;
+}
+
 int main() {
-    srand(time(NULL)) ;
+    srand(time(nullptr)) ;
 
     char data[DATA_SIZE+1];
     generateData(data, DATA_SIZE, CHANCE_OF_DUPLICATION);
@@ -90,5 +123,12 @@ int main() {
     std::cout<<"PRZED: " << data << std::endl;
     move4chars(data, 3);
     std::cout<<"PO:    " << data << std::endl;
+
+    if(isSorted(data, DATA_SIZE)){
+        std::cout<<"TAK\n";
+    }else{
+        std::cout<<"NIE\n";
+    }
+
     return 0;
 }
