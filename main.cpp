@@ -2,9 +2,11 @@
 #include <ctime>
 #include <cstdlib>
 #include <cstring>
+#include <cmath> // log
+#include <queue> //fifo
 
 const char C = 'C', M = 'M', Y = 'Y', K = 'K';
-const int DATA_SIZE = 15;
+const int DATA_SIZE = 40;
 const int CHANCE_OF_DUPLICATION = 90;
 
 void append(char* base, char suffix){
@@ -18,7 +20,7 @@ void swapAndAppend(char* data, char& degraded, char& upgraded){
     append(data, degraded);
 }
 
-void generateData(char* data ,int size, int chance_of_duplication){
+void generateData(char* data ,int size, const int chance_of_duplication){
     if( chance_of_duplication < 0 || chance_of_duplication > 100 || size<=0){
         throw;
     }
@@ -46,7 +48,7 @@ void generateData(char* data ,int size, int chance_of_duplication){
     }
     append(data, privileged);
 
-    while(--size){
+    while(--size - 1){
         random = rand()%100;
         if(random < chance_of_duplication){
             append(data,privileged);
@@ -60,11 +62,11 @@ void generateData(char* data ,int size, int chance_of_duplication){
     }
 }
 
-void move4chars(char* data, int index){
-    if(index < 0 || index > strlen(data)-5){
+void move4chars(char* data, const int index){
+    int size = strlen(data);
+    if(index < 0 || index > size-4){
         throw;
     }
-    int size = strlen(data);
     char* mid = new char[4];
     char* end = new char[size-index-4];
 
@@ -81,7 +83,7 @@ void move4chars(char* data, int index){
     strncpy(data+beg_len+end_len, mid, mid_len);
 }
 
-bool isSorted(const char* data, int size){
+bool isSorted(const char* data, const int size){
     if(data == nullptr || size <= 0){
         throw;
     }
@@ -114,21 +116,54 @@ bool isSorted(const char* data, int size){
     return true;
 }
 
+int bruteForce(char* data, const int size){
+    if(data == nullptr || size <=4){
+        throw;
+    }
+    std::queue<char*> fifo;
+    const int num_of_children = size-4;
+    fifo.push(data);
+    int iterations = 0;
+    char* tmp = new char[size];
+    while(true){
+        strncpy(tmp, fifo.front(), size);
+        delete [] fifo.front();
+        fifo.pop();
+
+
+        if(isSorted(tmp, size)){
+            strncpy(data, tmp, size);
+            while(!fifo.empty()){
+                delete[] fifo.front();
+                fifo.pop();
+            }
+            return iterations;
+            /*TODO:jeszze wypisać w ilu ruchach się to udało zrobić;
+            wystarczy zlogarytmowac liczbe iteracji logarytmem o podstawie "num_of_children"*/
+        }
+
+        for(int i=0; i<num_of_children; ++i) {
+            char *child = new char[size];
+            strncpy(child, tmp, size);
+            move4chars(child, i);
+            fifo.push(child);
+        }
+        ++iterations;
+    }
+
+
+}
+
 int main() {
     srand(time(nullptr)) ;
 
     char data[DATA_SIZE+1];
     generateData(data, DATA_SIZE, CHANCE_OF_DUPLICATION);
 
-    std::cout<<"PRZED: " << data << std::endl;
-    move4chars(data, 3);
-    std::cout<<"PO:    " << data << std::endl;
-
-    if(isSorted(data, DATA_SIZE)){
-        std::cout<<"TAK\n";
-    }else{
-        std::cout<<"NIE\n";
-    }
-
+    std::cout<<"Rozmiar danych: "<< DATA_SIZE<<std::endl;
+    std::cout<<"Prawdopodobienstwo powtorzenia: "<< CHANCE_OF_DUPLICATION<<"%"<<std::endl;
+    std::cout<<data<<std::endl;
+    bruteForce(data, strlen(data));
+    std::cout<<data<<std::endl;
     return 0;
 }
