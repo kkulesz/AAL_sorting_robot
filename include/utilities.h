@@ -18,6 +18,8 @@ void swapAndAppend(std::vector<int>& data, int& degraded, int& upgraded);
 void generateData(std::vector<int>& data, size_t size, const int chance_of_duplication);
 void move4chars(std::vector<int>& data, const int index);
 bool isSorted(std::vector<int> data);
+//bool worthSearching(std::vector<int> data);
 std::string vToStr(std::vector<int> data);
+int heuristicLoss(std::vector<int> data);
 
 #endif //PROJEKT_UTILITIES_H

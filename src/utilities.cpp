@@ -95,32 +95,15 @@ bool isSorted(std::vector<int> data){
 		throw;
 	}
 
-	// TODO: teraz mozna sprawdzac czy vector jest poprostu posorotowany bo enum numeruje pokolei
-	bool notSorted= false;
-	int i=1;
-	while(i != size) {
-		int current = data[i];
-		int previous = data[i - 1];
+	std::vector<int> buff = data;
+	std::sort(buff.begin(), buff.end());
 
-		if (current == C) {
-			if (previous == M || previous == Y || previous == K)  {
-				notSorted = true;
-			}
-		}else if( current == M) {
-			if (previous == Y || previous == K) {
-				notSorted = true;
-			}
-		}else if( current == Y) {
-			if (previous == K) {
-				notSorted = true;
-			}
-		}
-
-		if(notSorted) {
+	for(int i=0; i<size; i++){
+		if( buff[i] != data[i] )
 			return false;
-		}
-		++i;
 	}
+
+
 	return true;
 }
 

@@ -3,4 +3,4 @@ project(PROJEKT)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(PROJEKT src/main.cpp src/utilities.cpp src/bruteForce.cpp)
+add_executable(PROJEKT src/main.cpp src/utilities.cpp src/bruteForce.cpp src/creatingGroupsWithLast.cpp)
