@@ -9,24 +9,25 @@
 #include <iostream>
 #include <cstdlib>
 #include <queue> //fifo
+#include <algorithm>
+#include <sstream>
 
-void append(char* base, char suffix){
-	int len = strlen(base);
-	base[len] = suffix;
-	base[len+1] = '\0';
-}
+//void append(std::vector<int> base, int suffix){
+//	int len = base.size;
+//	base[len] = suffix;
+//}
 
-void swapAndAppend(char* data, char& degraded, char& upgraded){
+void swapAndAppend(std::vector<int>& data, char& degraded, char& upgraded){
 	std::swap(degraded, upgraded);
-	append(data, degraded);
+	data.push_back(degraded);
 }
 
-void generateData(char* data ,int size, const int chance_of_duplication){
+void generateData(std::vector<int>& data, size_t size, const int chance_of_duplication){
 	if( chance_of_duplication < 0 || chance_of_duplication > 100 || size<=0){
 		throw;
 	}
-	memset(data, '\0', 1);
-	std::cout<<data<<std::endl;
+
+//	std::cout<< vToStr(data) <<std::endl;
 	int chance_of_change = 100 - chance_of_duplication;
 
 	char privileged;
@@ -47,12 +48,12 @@ void generateData(char* data ,int size, const int chance_of_duplication){
 		privileged = K;
 		rest[0] = C; rest[1] = M; rest[2] = Y;
 	}
-	append(data, privileged);
+	data.push_back(privileged);
 
 	while(--size - 1){
 		random = rand()%100;
 		if(random < chance_of_duplication){
-			append(data,privileged);
+			data.push_back(privileged);
 		}else if(random < chance_of_duplication + chance_of_change/3){
 			swapAndAppend(data, privileged, rest[0]);
 		}else if( random < chance_of_duplication + 2/3*chance_of_change){
@@ -63,37 +64,43 @@ void generateData(char* data ,int size, const int chance_of_duplication){
 	}
 }
 
-void move4chars(char* data, const int index){
-	int size = strlen(data);
+void move4chars(std::vector<int>& data, const int index){
+	int size = data.size();
 	if(index < 0 || index > size-4){
 		throw;
 	}
-	char* mid = new char[4];
-	char* end = new char[size-index-4];
+
+	std::vector<int> mid;
+	std::vector<int> end;
+
+	mid.resize(size);
+	end.resize(size);
 
 	int beg_len = index;
 	int mid_len = 4;
 	int end_len = size - index-4;
 
 	//copy_to_tmp array
-	strncpy(mid, data+index, mid_len);
-	strncpy(end, data+index+mid_len, end_len);
+	std::copy_n(data.begin() + index, mid_len, mid.begin());
+	std::copy_n(data.begin() + index + mid_len, end_len, end.begin());
 
 	//copy in different_order
-	strncpy(data + beg_len, end, end_len);
-	strncpy(data+beg_len+end_len, mid, mid_len);
+	std::copy_n(end.begin(), end_len, data.begin() + beg_len);
+	std::copy_n(mid.begin(), mid_len, data.begin() + beg_len + end_len);
 }
 
-bool isSorted(const char* data, const int size){
-	if(data == nullptr || size <= 0){
+bool isSorted(std::vector<int> data){
+	size_t size = data.size();
+	if(size <= 0){
 		throw;
 	}
 
+	// TODO: teraz mozna sprawdzac czy vector jest poprostu posorotowany bo enum numeruje pokolei
 	bool notSorted= false;
 	int i=1;
 	while(i != size) {
-		char current = data[i];
-		char previous = data[i - 1];
+		int current = data[i];
+		int previous = data[i - 1];
 
 		if (current == C) {
 			if (previous == M || previous == Y || previous == K)  {
@@ -115,4 +122,52 @@ bool isSorted(const char* data, const int size){
 		++i;
 	}
 	return true;
+}
+
+std::string vToStr(std::vector<int> data){
+	std::stringstream ss;
+
+	for(auto x: data){
+		switch(x){
+			case C:
+				ss << 'C';
+				break;
+			case M:
+				ss << 'M';
+				break;
+			case Y:
+				ss << 'Y';
+				break;
+			case K:
+				ss << 'K';
+				break;
+			default:
+				throw;
+		}
+	}
+
+	return ss.str();
+}
+
+int heuristicLoss(std::vector<int> data){
+	size_t size = data.size();
+	if( size <= 0 ){
+		throw;
+	}
+
+	int loss=0;
+
+	std::vector<int> tmp;
+	tmp = data;
+
+	std::sort(tmp.begin(), tmp.end());
+
+	for (int i = 0; i < size; ++i) {
+		if( tmp[i] != data[i]){
+			++loss;
+		}
+	}
+
+
+	return loss;
 }

@@ -6,14 +6,18 @@
 #define PROJEKT_UTILITIES_H
 
 
-typedef enum Color{C = 'C', M = 'M', Y = 'Y', K = 'K'} Color;
+#include <vector>
+#include <string>
+
+typedef enum Color{C, M, Y, K} Color;
 const int DATA_SIZE = 40;
 const int CHANCE_OF_DUPLICATION = 90;
 
-void append(char* base, char suffix);
-void swapAndAppend(char* data, char& degraded, char& upgraded);
-void generateData(char* data ,int size, const int chance_of_duplication);
-void move4chars(char* data, const int index);
-bool isSorted(const char* data, const int size);
+//void append(std::vector<int>& base, int suffix);
+void swapAndAppend(std::vector<int>& data, int& degraded, int& upgraded);
+void generateData(std::vector<int>& data, size_t size, const int chance_of_duplication);
+void move4chars(std::vector<int>& data, const int index);
+bool isSorted(std::vector<int> data);
+std::string vToStr(std::vector<int> data);
 
 #endif //PROJEKT_UTILITIES_H
