@@ -10,8 +10,8 @@
 #include <string>
 
 typedef enum Color{C, M, Y, K} Color;
-const int DATA_SIZE = 40;
-const int CHANCE_OF_DUPLICATION = 90;
+const int DATA_SIZE = 10;
+const int CHANCE_OF_DUPLICATION = 50;
 
 //void append(std::vector<int>& base, int suffix);
 void swapAndAppend(std::vector<int>& data, int& degraded, int& upgraded);
@@ -21,5 +21,6 @@ bool isSorted(std::vector<int> data);
 //bool worthSearching(std::vector<int> data);
 std::string vToStr(std::vector<int> data);
 int heuristicLoss(std::vector<int> data);
+std::vector<int> convertToData(const char* arr, int size);
 
 #endif //PROJEKT_UTILITIES_H

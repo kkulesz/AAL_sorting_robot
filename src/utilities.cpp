@@ -154,3 +154,21 @@ int heuristicLoss(std::vector<int> data){
 
 	return loss;
 }
+
+std::vector<int> convertToData(const char* arr, int size){
+    std::vector<int> data;
+    for(int i=0; i<size; ++i){
+        if(arr[i] == 'C'){
+            data.push_back(C);
+        }else if(arr[i] == 'M'){
+            data.push_back(M);
+        }else if(arr[i] == 'Y'){
+            data.push_back(Y);
+        }else if(arr[i] == 'K'){
+            data.push_back(K);
+        }else{
+            throw("Invalid data in convertToData()!");
+        }
+    }
+    return std::move(data);
+}
