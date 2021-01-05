@@ -10,5 +10,6 @@
 int startFromBeg(std::vector<int>& data);
 int getIndexOfFirstUnsorted(std::vector<int>& data, int);
 int getNextToSort(std::vector<int>& data, int);
+int find_4th_1(std::vector<int>& data, int, int);
 
 #endif //PROJEKT_STARTFROMBEG_H

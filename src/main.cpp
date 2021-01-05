@@ -31,9 +31,11 @@ int main() {
 
 
 
-    const char* arr = "CCCCC";
-    data = convertToData(arr, strlen(arr));
+    //const char* arr = "CMYKCMYKCMYKCMYK";
+    //data = convertToData(arr, strlen(arr));
     startFromBeg(data);
-    std::cout<< vToStr(data) <<std::endl;
+    //std::cout<< vToStr(data) <<std::endl;
+    std::cout<<"Rozmiar danych: "<< DATA_SIZE<<std::endl;
+    std::cout<<"Prawdopodobienstwo powtorzenia: "<< CHANCE_OF_DUPLICATION<<"%"<<std::endl;
     return 0;
 }
