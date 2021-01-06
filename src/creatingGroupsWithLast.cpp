@@ -9,7 +9,7 @@
 #include "../include/utilities.h"
 
 
-int heuristicLossCGWL(std::vector<int> data){
+int heuristicLossCGWL(const std::vector<int>& data){
 
 	int prev = data[0];
 	int curr = data[1];
@@ -31,7 +31,7 @@ int heuristicLossCGWL(std::vector<int> data){
 }
 
 
-bool worthSearching(std::vector<int> data){
+bool worthSearching(const std::vector<int>& data){
 
 	static int attempts = 0;
 	static int prevLoss = 0;
@@ -42,7 +42,7 @@ bool worthSearching(std::vector<int> data){
 	prevLoss = loss;
 	loss = heuristicLossCGWL(data);
 
-	if( loss > prevLoss ){
+	if( loss >= prevLoss ){
 		attempts++;
 		somethingWrong = true;
 		buffer.push_back(data);
@@ -52,9 +52,6 @@ bool worthSearching(std::vector<int> data){
 
 	if(attempts > 10){
 		somethingWrong = false;
-
-//		auto it = std::unique( buffer.begin(), buffer.end() );
-//		bool sameFound = !( it == buffer.end() );
 
 		std::set<std::vector<int>> s(buffer.begin(), buffer.end());
 		bool sameFound = (s.size() != buffer.size());
@@ -87,7 +84,7 @@ int howManyLastsInCurrent4(std::queue<int> current4, int last){
 
 }
 
-int searchBest4ToSwap(std::vector<int> data, int last){
+int searchBest4ToSwap(const std::vector<int>& data, int last){
 
 	std::queue<int> current4;
 	current4.push(data[0]);
@@ -96,11 +93,10 @@ int searchBest4ToSwap(std::vector<int> data, int last){
 	current4.push(data[3]);
 
 	std::map<int, std::vector<int>> indexesForNumberOfLastOccurrences;
-	indexesForNumberOfLastOccurrences.emplace(0, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(1, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(2, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(3, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(4, std::vector<int>());
+	for(int i=0; i<5; i++){
+		indexesForNumberOfLastOccurrences.emplace(i, std::vector<int>());
+	}
+
 
 	int number = howManyLastsInCurrent4(current4, last);
 	indexesForNumberOfLastOccurrences.find(number)->second.push_back(0);
@@ -120,15 +116,22 @@ int searchBest4ToSwap(std::vector<int> data, int last){
 
 		if( searchingInLastGroup ){
 			if( i == 1 ){
+				//all colors same
 				return -1;
 			}
+			//searching in last group
 			break;
 		}
 
 		number = howManyLastsInCurrent4(current4, last);
+		if(number == 0) continue;
 		indexesForNumberOfLastOccurrences.find(number)->second.push_back(i);
+		if(number == 4){
+			break;
+		}
 	}
 
+	//choose best candidate
 	if(!indexesForNumberOfLastOccurrences.find(4)->second.empty()){
 		return indexesForNumberOfLastOccurrences.find(4)->second[0];
 	}else if(!indexesForNumberOfLastOccurrences.find(3)->second.empty()){
@@ -143,7 +146,7 @@ int searchBest4ToSwap(std::vector<int> data, int last){
 
 }
 
-int search4ToSwap(std::vector<int> data, int last){
+int search4ToSwap(const std::vector<int>& data, int last){
 
 	std::queue<int> current4;
 	current4.push(data[0]);
@@ -152,11 +155,9 @@ int search4ToSwap(std::vector<int> data, int last){
 	current4.push(data[3]);
 
 	std::map<int, std::vector<int>> indexesForNumberOfLastOccurrences;
-	indexesForNumberOfLastOccurrences.emplace(0, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(1, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(2, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(3, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(4, std::vector<int>());
+	for(int i=0; i<5; i++){
+		indexesForNumberOfLastOccurrences.emplace(i, std::vector<int>());
+	}
 
 	int number = howManyLastsInCurrent4(current4, last);
 	indexesForNumberOfLastOccurrences.find(number)->second.push_back(0);
@@ -182,6 +183,7 @@ int search4ToSwap(std::vector<int> data, int last){
 		}
 
 		number = howManyLastsInCurrent4(current4, last);
+		if(number == 0) continue;
 		indexesForNumberOfLastOccurrences.find(number)->second.push_back(i);
 	}
 
@@ -249,7 +251,7 @@ void putAll4ToOrder(std::vector<int>& data, int& numberOfMoves){
 
 }
 
-int creatingGroupsWithLast(std::vector<int>& data){
+int creatingGroupsWithLast(std::vector<int>& data, bool versionWithSortFinish){
 
 	int last = *(data.end()-1);
 
@@ -269,7 +271,9 @@ int creatingGroupsWithLast(std::vector<int>& data){
 		++numberOfMoves;
 	}
 
-	putAll4ToOrder(data, numberOfMoves);
+	// activate this if
+	if(versionWithSortFinish)
+		putAll4ToOrder(data, numberOfMoves);
 
 	return numberOfMoves;
 }

@@ -19,7 +19,7 @@
 
 void swapAndAppend(std::vector<int>& data, char& degraded, char& upgraded){
 	std::swap(degraded, upgraded);
-	data.push_back(degraded);
+	data.push_back(upgraded);
 }
 
 void generateData(std::vector<int>& data, size_t size, const int chance_of_duplication){
