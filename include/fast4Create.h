@@ -7,6 +7,7 @@
 
 #include <vector>
 
+typedef std::vector<std::vector<std::vector<int>>> IndexVector;
 int fast4Create(std::vector<int>& data, bool versionWithSortFinish);
 
 #endif //PROJEKT_FAST4CREATE_H

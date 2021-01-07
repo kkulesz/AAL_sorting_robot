@@ -10,7 +10,7 @@
 #include <string>
 
 typedef enum Color{C, M, Y, K} Color;
-const int DATA_SIZE = 200;
+const int DATA_SIZE = 1000;
 const int CHANCE_OF_DUPLICATION = 10;
 //void append(std::vector<int>& base, int suffix);
 void swapAndAppend(std::vector<int>& data, int& degraded, int& upgraded);

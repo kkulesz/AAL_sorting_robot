@@ -44,68 +44,28 @@ bool worthSearching(std::vector<int> data) {
 	prevLoss = loss;
 	loss = heuristicLossF4C(data);
 
-//	if( loss >= prevLoss ){
-//		attempts++;
-//		somethingWrong = true;
-//		buffer.push_back(data);
-//	} else if(somethingWrong){
-//		attempts++;
-//	}
-//
-//	if(attempts > 20){
-//		somethingWrong = false;
-//
-//		bool same5Found= false;
-//		std::map<std::string, int> map;
-//
-//		for(auto b: buffer){
-//			if( map.find(vToStr(b)) != map.end())
-//				map.emplace(std::make_pair(vToStr(b),1));
-//			else
-//				(*map.find(vToStr(b))).second++;
-//		}
-//
-//		for(auto x: map){
-//			if( x.second >= 2){
-//				same5Found = true;
-//			}
-//		}
-//
-////		std::set<std::vector<int>> s(buffer.begin(), buffer.end());
-////		bool sameFound = (s.size() != buffer.size());
-//
-//		if(same5Found){
-//			return false;
-//		}else{
-//			attempts = 0;
-//			somethingWrong=false;
-//		}
-//	}
+	if( loss >= prevLoss ){
+		attempts++;
+		somethingWrong = true;
+		buffer.push_back(data);
+	} else if(somethingWrong){
+		attempts++;
+	}
 
-		if( loss >= prevLoss ){
-			attempts++;
-			somethingWrong = true;
-			buffer.push_back(data);
-		} else if(somethingWrong){
-			attempts++;
-		}
+	if(attempts > 20) {
+		somethingWrong = false;
 
-		if(attempts > 10) {
+		std::set<std::vector<int>> s(buffer.begin(), buffer.end());
+		bool sameFound = (s.size() != buffer.size());
+
+		if (sameFound) {
+			return false;
+		} else {
+			attempts = 0;
 			somethingWrong = false;
-
-			std::set<std::vector<int>> s(buffer.begin(), buffer.end());
-			bool sameFound = (s.size() != buffer.size());
-
-			if (sameFound) {
-				return false;
-			} else {
-				attempts = 0;
-				somethingWrong = false;
-				buffer.clear();
-			}
-
-
+			buffer.clear();
 		}
+	}
 
 
 	return true;
@@ -141,7 +101,7 @@ std::pair<int,int> searchForSmallGroupLeft(std::vector<int> current4){
 }
 
 void addIndexToVector(int index, std::pair<int,int> colorAndGroupSize,
-		std::vector<std::vector<std::vector<int>>>& vector,
+					  IndexVector& vector,
 		const std::vector<int>& groups){
 
 
@@ -155,32 +115,63 @@ void addIndexToVector(int index, std::pair<int,int> colorAndGroupSize,
 	int color = colorAndGroupSize.first;
 	int size = colorAndGroupSize.second;
 
-
-
 	vector[color][size].push_back(index);
 
+}
+
+void initializeIndexesVector(IndexVector& vector){
+
+	for(int i=0; i<4; i++){
+		vector.push_back(std::vector<std::vector<int>>());
+	}
+
+	for(int i=0; i<4; i++){
+		for(int j=0; j<4; j++){
+			vector[i].push_back(std::vector<int>());
+		}
+	}
+
+}
+
+void searchForIndexes(const std::vector<int>& data,
+					  IndexVector& indexVector, int skip, const std::vector<int>& groups,
+					  std::vector<int> current4, bool right){
+	size_t size = data.size();
+
+	for(int i=1+skip; i<size-4; i++){
+
+		int k = 0;
+		for(int j=i; j<i+4; j++, k++){
+			current4[k] = data[j];
+		}
+
+		std::pair<int,int> colorAndGroupSize;
+
+		if(right)
+			colorAndGroupSize = searchForSmallGroupRight(current4);
+		else
+			colorAndGroupSize = searchForSmallGroupLeft(current4);
+
+
+		if(colorAndGroupSize.second != 4){
+			addIndexToVector(i, colorAndGroupSize, indexVector, groups);
+		}else{
+			i+= 3;
+		}
+	}
 }
 
 int searchBest4ToMergeRight(const std::vector<int>& data, const std::vector<int>& groups){
 	size_t size = data.size();
 
 	std::vector<int> current4;
-	current4.push_back(data[0]);
-	current4.push_back(data[1]);
-	current4.push_back(data[2]);
-	current4.push_back(data[3]);
-
-
-	std::vector<std::vector<std::vector<int>>> indexesOfGroupRight;
 	for(int i=0; i<4; i++){
-		indexesOfGroupRight.push_back(std::vector<std::vector<int>>());
+		current4.push_back(data[i]);
 	}
 
-	for(int i=0; i<4; i++){
-		for(int j=0; j<4; j++){
-			indexesOfGroupRight[i].push_back(std::vector<int>());
-		}
-	}
+
+	IndexVector indexesOfGroupRight;
+	initializeIndexesVector(indexesOfGroupRight);
 
 
 
@@ -188,29 +179,15 @@ int searchBest4ToMergeRight(const std::vector<int>& data, const std::vector<int>
 
 	int skip = 0;
 	if(colorAndGroupSizeRight.second != 4){
-
 		addIndexToVector(0, colorAndGroupSizeRight, indexesOfGroupRight, groups);
 	}else{
 		skip = 3;
 	}
 
-	for(int i=1+skip; i<size-4; i++){
-		int k = 0;
-		for(int j=i; j<i+4; j++, k++){
-			current4[k] = data[j];
-		}
-
-		colorAndGroupSizeRight = searchForSmallGroupRight(current4);
-
-		if(colorAndGroupSizeRight.second != 4){
-
-			addIndexToVector(i, colorAndGroupSizeRight, indexesOfGroupRight, groups);
-		}else{
-			i+= 3;
-		}
-	}
+	searchForIndexes(data, indexesOfGroupRight, skip, groups, current4, true);
 
 
+	// return best
 	for( int groupSize=3; groupSize>0; groupSize--){
 		for(int color=0; color<4; color++){
 			if( !indexesOfGroupRight[color][groupSize].empty() ){
@@ -226,22 +203,13 @@ int searchBest4ToMergeLeft(const std::vector<int>& data, const std::vector<int>&
 	size_t size = data.size();
 
 	std::vector<int> current4;
-	current4.push_back(data[0]);
-	current4.push_back(data[1]);
-	current4.push_back(data[2]);
-	current4.push_back(data[3]);
-
-
-	std::vector<std::vector<std::vector<int>>> indexesOfGroupLeft;
 	for(int i=0; i<4; i++){
-		indexesOfGroupLeft.push_back(std::vector<std::vector<int>>());
+		current4.push_back(data[i]);
 	}
 
-	for(int i=0; i<4; i++){
-		for(int j=0; j<4; j++){
-			indexesOfGroupLeft[i].push_back(std::vector<int>());
-		}
-	}
+
+	IndexVector indexesOfGroupLeft;
+	initializeIndexesVector(indexesOfGroupLeft);
 
 
 	std::pair<int,int> colorAndGroupSizeLeft = searchForSmallGroupLeft(current4);
@@ -254,22 +222,7 @@ int searchBest4ToMergeLeft(const std::vector<int>& data, const std::vector<int>&
 		skip = 3;
 	}
 
-	for(int i=1+skip; i<size-4; i++){
-
-		int k = 0;
-		for(int j=i; j<i+4; j++, k++){
-			current4[k] = data[j];
-		}
-
-		colorAndGroupSizeLeft = searchForSmallGroupLeft(current4);
-
-
-		if(colorAndGroupSizeLeft.second != 4){
-			addIndexToVector(i, colorAndGroupSizeLeft, indexesOfGroupLeft, groups);
-		}else{
-			i+= 3;
-		}
-	}
+	searchForIndexes(data, indexesOfGroupLeft, skip, groups, current4, false);
 
 
 	int color = data[size-1];
@@ -304,11 +257,15 @@ void makeGroups(const std::vector<int>& data, std::vector<int>& groups){
 
 	size_t size = data.size();
 
+	// clear the vector
+	for(int i=0; i<size; i++){
+		groups[i] = -1;
+	}
+
 	std::vector<int> current4;
-	current4.push_back(data[0]);
-	current4.push_back(data[1]);
-	current4.push_back(data[2]);
-	current4.push_back(data[3]);
+	for(int i=0; i<4; i++){
+		current4.push_back(data[i]);
+	}
 
 	bool oneColor = checkIfIsAll4(current4);
 	int skip = 0;
@@ -321,11 +278,6 @@ void makeGroups(const std::vector<int>& data, std::vector<int>& groups){
 	}
 
 	for(int i=1+skip; i<size-3; i++){
-
-		if( i+3 >= size){
-			// end of search
-			return;
-		}
 
 		int k = 0;
 		for(int j=i; j<i+4; j++, k++){
@@ -358,6 +310,32 @@ int findGroupInLast8(const std::vector<int>& data, const std::vector<int>& group
 	return -1;
 }
 
+void swapAllColor(std::vector<int>& data, std::vector<int>& groups, int& numberOfMoves, int color){
+	while(true){
+		int index = search4ToSwap(data, color);
+
+		if(index == -1){
+			// cant swap
+			break;
+		}
+
+		move4chars(data, index);
+		makeGroups(data, groups);
+
+
+		++numberOfMoves;
+	}
+}
+
+void putAll4ToOrder(std::vector<int>& data, int& numberOfMoves, std::vector<int>& groups){
+
+	swapAllColor(data, groups, numberOfMoves, C);
+	swapAllColor(data, groups, numberOfMoves, M);
+	swapAllColor(data, groups, numberOfMoves, Y);
+	swapAllColor(data, groups, numberOfMoves, K);
+
+}
+
 
 int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 	size_t size = data.size();
@@ -377,8 +355,7 @@ int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 
 		if(index == -1){
 //			 try order
-			putAll4ToOrder(data, numberOfMoves);
-			makeGroups(data, groups);
+			putAll4ToOrder(data, numberOfMoves, groups);
 
 			index = searchBest4ToMergeRight(data, groups);
 			if( index == -1){
@@ -394,15 +371,20 @@ int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 
 		++numberOfMoves;
 
-		if(numberOfMoves == 100){
-			std::cout << "w";
-		}
+
 
 		makeGroups(data, groups);
 		index = searchBest4ToMergeLeft(data, groups);
 
 
 		if(index == -1){
+			//	try order
+			putAll4ToOrder(data, numberOfMoves, groups);
+
+			index = searchBest4ToMergeLeft(data, groups);
+			if( index == -1){
+				continue;
+			}
 			// cant swap
 			continue;
 		}
@@ -412,9 +394,6 @@ int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 
 		++numberOfMoves;
 
-		if(numberOfMoves == 100){
-			std::cout << "w";
-		}
 
 		makeGroups(data, groups);
 
@@ -430,16 +409,13 @@ int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 
 		++numberOfMoves;
 
-		if(numberOfMoves == 100){
-			std::cout << "w";
-		}
 
 		makeGroups(data, groups);
 	}
 
 	// activate this if
 	if(versionWithSortFinish)
-		putAll4ToOrder(data, numberOfMoves);
+		putAll4ToOrder(data, numberOfMoves, groups);
 
 	return numberOfMoves;
 
