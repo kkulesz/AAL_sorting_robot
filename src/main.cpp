@@ -16,9 +16,10 @@ int main() {
 
     std::vector<int> data;
     generateData(data, DATA_SIZE, CHANCE_OF_DUPLICATION);
+    std::cout<< vToStr(data) <<std::endl;
 
-    std::vector<int> dataForCGWL = data;
-    std::cout<<"Rozmiar danych: "<< DATA_SIZE<<std::endl;
+//    std::vector<int> dataForCGWL = data;
+    std::cout<<"Rozmiar danych: "<< data.size()<<std::endl;
     std::cout<<"Prawdopodobienstwo powtorzenia: "<< CHANCE_OF_DUPLICATION<<"%"<<std::endl;
 
 
@@ -31,8 +32,9 @@ int main() {
 
 
 
-    //const char* arr = "CMYKCMYKCMYKCMYK";
+    //const char* arr = "KKKMMMMMCCMMMMCC";
     //data = convertToData(arr, strlen(arr));
+    std::cout<< vToStr(data) <<std::endl;
     startFromBeg(data);
     //std::cout<< vToStr(data) <<std::endl;
     std::cout<<"Rozmiar danych: "<< DATA_SIZE<<std::endl;

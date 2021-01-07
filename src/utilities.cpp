@@ -50,7 +50,7 @@ void generateData(std::vector<int>& data, size_t size, const int chance_of_dupli
 	}
 	data.push_back(privileged);
 
-	while(--size - 1){
+	while(--size){
 		random = rand()%100;
 		if(random < chance_of_duplication){
 			data.push_back(privileged);
