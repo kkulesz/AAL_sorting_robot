@@ -337,6 +337,72 @@ void putAll4ToOrder(std::vector<int>& data, int& numberOfMoves, std::vector<int>
 }
 
 
+bool rightSwap(std::vector<int>& data, std::vector<int>& groups, int& numberOfMoves){
+	int index = searchBest4ToMergeRight(data, groups);
+
+	if(index == -1){
+		// try order
+		putAll4ToOrder(data, numberOfMoves, groups);
+
+		index = searchBest4ToMergeRight(data, groups);
+		if( index == -1){
+			// cant swap
+			return false;
+		}
+	}
+
+	move4chars(data, index);
+	move4chars(groups, index);
+	++numberOfMoves;
+
+	makeGroups(data, groups);
+
+	return true;
+}
+
+bool leftSwap(std::vector<int>& data, std::vector<int>& groups, int& numberOfMoves){
+	int index = searchBest4ToMergeLeft(data, groups);
+
+	if(index == -1){
+		//	try order
+		putAll4ToOrder(data, numberOfMoves, groups);
+
+		index = searchBest4ToMergeLeft(data, groups);
+		if( index == -1){
+			// cant swap
+			return false;
+		}
+	}
+
+	move4chars(data, index);
+	move4chars(groups, index);
+
+	++numberOfMoves;
+
+	makeGroups(data, groups);
+
+	return true;
+}
+
+
+bool swapCreatedGroup(std::vector<int>& data, std::vector<int>& groups, int& numberOfMoves){
+	int index = findGroupInLast8(data, groups);
+
+	if(index == -1){
+		// cant swap
+		return false;
+	}
+
+	move4chars(data, index);
+	move4chars(groups, index);
+
+	++numberOfMoves;
+
+	makeGroups(data, groups);
+
+	return true;
+}
+
 int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 	size_t size = data.size();
 
@@ -349,68 +415,15 @@ int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 	int numberOfMoves = 0;
 	while (!isSorted(data) && worthSearching(data)){
 
+		if(!rightSwap(data, groups, numberOfMoves))
+			break;
 
-
-		int index = searchBest4ToMergeRight(data, groups);
-
-		if(index == -1){
-//			 try order
-			putAll4ToOrder(data, numberOfMoves, groups);
-
-			index = searchBest4ToMergeRight(data, groups);
-			if( index == -1){
-				break;
-			}
-
-//			break;
-
-		}
-
-		move4chars(data, index);
-		move4chars(groups, index);
-
-		++numberOfMoves;
-
-
-
-		makeGroups(data, groups);
-		index = searchBest4ToMergeLeft(data, groups);
-
-
-		if(index == -1){
-			//	try order
-			putAll4ToOrder(data, numberOfMoves, groups);
-
-			index = searchBest4ToMergeLeft(data, groups);
-			if( index == -1){
-				continue;
-			}
-			// cant swap
+		if(!leftSwap(data, groups, numberOfMoves))
 			continue;
-		}
 
-		move4chars(data, index);
-		move4chars(groups, index);
-
-		++numberOfMoves;
-
-
-		makeGroups(data, groups);
-
-		index = findGroupInLast8(data, groups);
-
-		if(index == -1){
-			// cant swap
+		if(!swapCreatedGroup(data, groups, numberOfMoves))
 			continue;
-		}
 
-		move4chars(data, index);
-		move4chars(groups, index);
-
-		++numberOfMoves;
-
-
-		makeGroups(data, groups);
 	}
 
 	// activate this if
