@@ -9,7 +9,7 @@
 #include "../include/utilities.h"
 
 
-int heuristicLossCGWL(std::vector<int> data){
+int heuristicLossCGWL(const std::vector<int>& data){
 
 	int prev = data[0];
 	int curr = data[1];
@@ -31,7 +31,7 @@ int heuristicLossCGWL(std::vector<int> data){
 }
 
 
-bool worthSearching(std::vector<int> data){
+bool worthSearching(const std::vector<int>& data){
 
 	static int attempts = 0;
 	static int prevLoss = 0;
@@ -42,7 +42,7 @@ bool worthSearching(std::vector<int> data){
 	prevLoss = loss;
 	loss = heuristicLossCGWL(data);
 
-	if( loss > prevLoss ){
+	if( loss >= prevLoss ){
 		attempts++;
 		somethingWrong = true;
 		buffer.push_back(data);
@@ -52,9 +52,6 @@ bool worthSearching(std::vector<int> data){
 
 	if(attempts > 10){
 		somethingWrong = false;
-
-//		auto it = std::unique( buffer.begin(), buffer.end() );
-//		bool sameFound = !( it == buffer.end() );
 
 		std::set<std::vector<int>> s(buffer.begin(), buffer.end());
 		bool sameFound = (s.size() != buffer.size());
@@ -87,24 +84,9 @@ int howManyLastsInCurrent4(std::queue<int> current4, int last){
 
 }
 
-int searchBest4ToSwap(std::vector<int> data, int last){
-
-	std::queue<int> current4;
-	current4.push(data[0]);
-	current4.push(data[1]);
-	current4.push(data[2]);
-	current4.push(data[3]);
-
-	std::map<int, std::vector<int>> indexesForNumberOfLastOccurrences;
-	indexesForNumberOfLastOccurrences.emplace(0, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(1, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(2, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(3, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(4, std::vector<int>());
-
-	int number = howManyLastsInCurrent4(current4, last);
-	indexesForNumberOfLastOccurrences.find(number)->second.push_back(0);
-
+bool searchForIndexes(const std::vector<int>& data, std::queue<int> current4,
+		int last, std::map<int, std::vector<int>>& indexesForNumberOfLastOccurrences,
+		bool searchFor4){
 	size_t size = data.size();
 	for(int i=1; i<size-3; ++i){
 		current4.pop();
@@ -120,15 +102,44 @@ int searchBest4ToSwap(std::vector<int> data, int last){
 
 		if( searchingInLastGroup ){
 			if( i == 1 ){
-				return -1;
+				//all colors same
+				return false;
 			}
+			//searching in last group
 			break;
 		}
 
-		number = howManyLastsInCurrent4(current4, last);
+		int number = howManyLastsInCurrent4(current4, last);
+		if(number == 0) continue;
 		indexesForNumberOfLastOccurrences.find(number)->second.push_back(i);
+		if(number == 4 && !searchFor4){
+			break;
+		}
+	}
+	return true;
+}
+
+
+int searchBest4ToSwap(const std::vector<int>& data, int last){
+
+	std::queue<int> current4;
+	for(int i=0; i<4; i++){
+		current4.push(data[i]);
 	}
 
+	std::map<int, std::vector<int>> indexesForNumberOfLastOccurrences;
+	for(int i=0; i<5; i++){
+		indexesForNumberOfLastOccurrences.emplace(i, std::vector<int>());
+	}
+
+
+	int number = howManyLastsInCurrent4(current4, last);
+	indexesForNumberOfLastOccurrences.find(number)->second.push_back(0);
+
+	if(!searchForIndexes(data, current4, last, indexesForNumberOfLastOccurrences, false))
+		return -1;
+
+	//choose best candidate
 	if(!indexesForNumberOfLastOccurrences.find(4)->second.empty()){
 		return indexesForNumberOfLastOccurrences.find(4)->second[0];
 	}else if(!indexesForNumberOfLastOccurrences.find(3)->second.empty()){
@@ -143,47 +154,25 @@ int searchBest4ToSwap(std::vector<int> data, int last){
 
 }
 
-int search4ToSwap(std::vector<int> data, int last){
+int search4ToSwap(const std::vector<int>& data, int last){
 
 	std::queue<int> current4;
-	current4.push(data[0]);
-	current4.push(data[1]);
-	current4.push(data[2]);
-	current4.push(data[3]);
+	for(int i=0; i<4; i++){
+		current4.push(data[i]);
+	}
 
 	std::map<int, std::vector<int>> indexesForNumberOfLastOccurrences;
-	indexesForNumberOfLastOccurrences.emplace(0, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(1, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(2, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(3, std::vector<int>());
-	indexesForNumberOfLastOccurrences.emplace(4, std::vector<int>());
+	for(int i=0; i<5; i++){
+		indexesForNumberOfLastOccurrences.emplace(i, std::vector<int>());
+	}
 
 	int number = howManyLastsInCurrent4(current4, last);
 	indexesForNumberOfLastOccurrences.find(number)->second.push_back(0);
 
-	size_t size = data.size();
-	for(int i=1; i<size-3; ++i){
-		current4.pop();
-		current4.push(data[i+3]);
-		bool searchingInLastGroup = true;
 
-		for(int j=size-1; j>i+3; j--){
-			if( data[i+3] != data[j] ){
-				searchingInLastGroup = false;
-				break;
-			}
-		}
+	if(!searchForIndexes(data, current4, last, indexesForNumberOfLastOccurrences, true))
+		return -1;
 
-		if( searchingInLastGroup ){
-			if( i == 1 ){
-				return -1;
-			}
-			break;
-		}
-
-		number = howManyLastsInCurrent4(current4, last);
-		indexesForNumberOfLastOccurrences.find(number)->second.push_back(i);
-	}
 
 	if(!indexesForNumberOfLastOccurrences.find(4)->second.empty()){
 		return indexesForNumberOfLastOccurrences.find(4)->second[0];
@@ -193,63 +182,32 @@ int search4ToSwap(std::vector<int> data, int last){
 
 }
 
+void swapAllColor(std::vector<int>& data, int& numberOfMoves, int color){
+	while(true){
+		int index = search4ToSwap(data, color);
+
+		if(index == -1){
+			// cant swap
+			break;
+		}
+
+		move4chars(data, index);
+
+		++numberOfMoves;
+	}
+}
+
 void putAll4ToOrder(std::vector<int>& data, int& numberOfMoves){
 
-	while(true){
-		int index = search4ToSwap(data, C);
+	swapAllColor(data, numberOfMoves,C);
+	swapAllColor(data, numberOfMoves,M);
+	swapAllColor(data, numberOfMoves,Y);
+	swapAllColor(data, numberOfMoves,K);
 
-		if(index == -1){
-			// cant swap
-			break;
-		}
-
-		move4chars(data, index);
-
-		++numberOfMoves;
-	}
-
-	while(true){
-		int index = search4ToSwap(data, M);
-
-		if(index == -1){
-			// cant swap
-			break;
-		}
-
-		move4chars(data, index);
-
-		++numberOfMoves;
-	}
-
-	while(true){
-		int index = search4ToSwap(data, Y);
-
-		if(index == -1){
-			// cant swap
-			break;
-		}
-
-		move4chars(data, index);
-
-		++numberOfMoves;
-	}
-
-	while(true){
-		int index = search4ToSwap(data, K);
-
-		if(index == -1){
-			// cant swap
-			break;
-		}
-
-		move4chars(data, index);
-
-		++numberOfMoves;
-	}
 
 }
 
-int creatingGroupsWithLast(std::vector<int>& data){
+int creatingGroupsWithLast(std::vector<int>& data, bool versionWithSortFinish){
 
 	int last = *(data.end()-1);
 
@@ -269,7 +227,9 @@ int creatingGroupsWithLast(std::vector<int>& data){
 		++numberOfMoves;
 	}
 
-	putAll4ToOrder(data, numberOfMoves);
+	// activate this if
+	if(versionWithSortFinish)
+		putAll4ToOrder(data, numberOfMoves);
 
 	return numberOfMoves;
 }
