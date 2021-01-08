@@ -12,11 +12,6 @@
 #include <algorithm>
 #include <sstream>
 
-//void append(std::vector<int> base, int suffix){
-//	int len = base.size;
-//	base[len] = suffix;
-//}
-
 void swapAndAppend(std::vector<int>& data, char& degraded, char& upgraded){
 	std::swap(degraded, upgraded);
 	data.push_back(upgraded);
@@ -26,13 +21,10 @@ void generateData(std::vector<int>& data, size_t size, const int chance_of_dupli
 	if( chance_of_duplication < 0 || chance_of_duplication > 100 || size<=0){
 		throw;
 	}
-
-//	std::cout<< vToStr(data) <<std::endl;
-	int chance_of_change = 100 - chance_of_duplication;
+	int chance_of_change = (100 - chance_of_duplication)/3;
 
 	char privileged;
 	char rest[3];
-
 
 	int random = rand()%100;
 	if(random <= 25){//choose first privileged and set the rest
@@ -50,13 +42,13 @@ void generateData(std::vector<int>& data, size_t size, const int chance_of_dupli
 	}
 	data.push_back(privileged);
 
-	while(--size - 1){
+	while(--size){
 		random = rand()%100;
 		if(random < chance_of_duplication){
 			data.push_back(privileged);
-		}else if(random < chance_of_duplication + chance_of_change/3){
+		}else if(random < chance_of_duplication + chance_of_change){
 			swapAndAppend(data, privileged, rest[0]);
-		}else if( random < chance_of_duplication + 2/3*chance_of_change){
+		}else if( random < chance_of_duplication + chance_of_change*2){
 			swapAndAppend(data, privileged, rest[1]);
 		}else{
 			swapAndAppend(data, privileged, rest[2]);
@@ -67,6 +59,7 @@ void generateData(std::vector<int>& data, size_t size, const int chance_of_dupli
 void move4chars(std::vector<int>& data, const int index){
 	int size = data.size();
 	if(index < 0 || index > size-4){
+	    std::cout<<"move4chars throw- index: "<<index<<std::endl;
 		throw;
 	}
 
@@ -87,11 +80,13 @@ void move4chars(std::vector<int>& data, const int index){
 	//copy in different_order
 	std::copy_n(end.begin(), end_len, data.begin() + beg_len);
 	std::copy_n(mid.begin(), mid_len, data.begin() + beg_len + end_len);
+    std::cout<< vToStr(data) <<std::endl;
 }
 
 bool isSorted(std::vector<int> data){
 	size_t size = data.size();
 	if(size <= 0){
+	    std::cout<<"isSorted thow"<<std::endl;
 		throw;
 	}
 
@@ -102,8 +97,6 @@ bool isSorted(std::vector<int> data){
 		if( buff[i] != data[i] )
 			return false;
 	}
-
-
 	return true;
 }
 
@@ -125,6 +118,7 @@ std::string vToStr(std::vector<int> data){
 				ss << 'K';
 				break;
 			default:
+                std::cout<<"vToStr throw"<<std::endl;
 				throw;
 		}
 	}
@@ -135,6 +129,7 @@ std::string vToStr(std::vector<int> data){
 int heuristicLoss(std::vector<int> data){
 	size_t size = data.size();
 	if( size <= 0 ){
+        std::cout<<"heuristicLoss throw"<<std::endl;
 		throw;
 	}
 
@@ -167,7 +162,8 @@ std::vector<int> convertToData(const char* arr, int size){
         }else if(arr[i] == 'K'){
             data.push_back(K);
         }else{
-            throw("Invalid data in convertToData()!");
+            std::cout<<"convertToData throw"<<std::endl;
+            throw;
         }
     }
     return std::move(data);

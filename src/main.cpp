@@ -17,10 +17,12 @@
 using namespace std;
 using namespace popl;
 
+
 void runMode1(int algorithm){
 
 	string input;
 	getline(cin, input);
+
 
 	//TODO:Comment out
 //	cout << input << "\n";
@@ -236,5 +238,6 @@ int main(int argc, char **argv) {
 //    data = convertToData(arr, strlen(arr));
 //    startFromBeg(data);
 //    std::cout<< vToStr(data) <<std::endl;
+
     return 0;
 }

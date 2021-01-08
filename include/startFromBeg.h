@@ -8,7 +8,11 @@
 #include <vector>
 
 int startFromBeg(std::vector<int>& data);
-int getIndexOfFirstUnsorted(std::vector<int>& data, int);
-int getNextToSort(std::vector<int>& data, int);
+int getNext(std::vector<int>& data, int howManySorted);
+int getHowManySorted(std::vector<int>& data, int howManySorted);
+int find4thPlus1(std::vector<int>& data, int howManySorted, int next);
+int findPositionOfNext(std::vector<int>& data,int howManySorted,int next);
+int manipulateEnd(std::vector<int>& data,int howManySorted, int indexOfNext);
+int manipulateUntil4thPlus1(std::vector<int>& data, int howManySorted, int next);
 
 #endif //PROJEKT_STARTFROMBEG_H
