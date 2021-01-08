@@ -12,11 +12,6 @@
 #include <algorithm>
 #include <sstream>
 
-//void append(std::vector<int> base, int suffix){
-//	int len = base.size;
-//	base[len] = suffix;
-//}
-
 void swapAndAppend(std::vector<int>& data, char& degraded, char& upgraded){
 	std::swap(degraded, upgraded);
 	data.push_back(degraded);
@@ -26,13 +21,10 @@ void generateData(std::vector<int>& data, size_t size, const int chance_of_dupli
 	if( chance_of_duplication < 0 || chance_of_duplication > 100 || size<=0){
 		throw;
 	}
-
-//	std::cout<< vToStr(data) <<std::endl;
 	int chance_of_change = (100 - chance_of_duplication)/3;
 
 	char privileged;
 	char rest[3];
-
 
 	int random = rand()%100;
 	if(random <= 25){//choose first privileged and set the rest
@@ -105,8 +97,6 @@ bool isSorted(std::vector<int> data){
 		if( buff[i] != data[i] )
 			return false;
 	}
-
-
 	return true;
 }
 
@@ -172,7 +162,7 @@ std::vector<int> convertToData(const char* arr, int size){
         }else if(arr[i] == 'K'){
             data.push_back(K);
         }else{
-            std::cout<<"convertToData thow"<<std::endl;
+            std::cout<<"convertToData throw"<<std::endl;
             throw;
         }
     }
