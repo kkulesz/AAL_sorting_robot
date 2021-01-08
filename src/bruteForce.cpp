@@ -7,25 +7,26 @@
 #include <cstring>
 #include <queue> //fifo
 
-int bruteForce(char* data, const int size){
-	if(data == nullptr || size <=4){
+int bruteForce(std::vector<int>& data){
+	size_t size = data.size();
+
+	if(size <=4){
 		throw;
 	}
-	std::queue<char*> fifo;
-	const int num_of_children = size-4;
+
+	std::queue<std::vector<int>> fifo;
+	const size_t num_of_children = size-4;
 	fifo.push(data);
+
 	int iterations = 0;
-	char* tmp = new char[size];
+	std::vector<int> tmp;
 	while(true){
-		strncpy(tmp, fifo.front(), size);
-		delete [] fifo.front();
+		tmp = fifo.front();
 		fifo.pop();
 
-
-		if(isSorted(tmp, size)){
-			strncpy(data, tmp, size);
+		if(isSorted(tmp)){
+			data = tmp;
 			while(!fifo.empty()){
-				delete[] fifo.front();
 				fifo.pop();
 			}
 			return iterations;
@@ -34,8 +35,8 @@ int bruteForce(char* data, const int size){
 		}
 
 		for(int i=0; i<num_of_children; ++i) {
-			char *child = new char[size];
-			strncpy(child, tmp, size);
+			std::vector<int> child;
+			child = tmp;
 			move4chars(child, i);
 			fifo.push(child);
 		}
