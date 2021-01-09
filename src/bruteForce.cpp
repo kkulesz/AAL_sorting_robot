@@ -18,7 +18,7 @@ int bruteForce(std::vector<int>& data, int& bestNumOfMoves){
 	}
 
 	std::queue<std::vector<int>> fifo;
-	const size_t num_of_children = size-4;
+	const size_t num_of_children = size-5;
 	fifo.push(data);
 
 	int iterations = 0;
