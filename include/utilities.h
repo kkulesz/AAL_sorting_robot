@@ -16,13 +16,13 @@ const int DATA_SIZE =500;
 const int CHANCE_OF_DUPLICATION = 10;
 
 
-//void append(std::vector<int>& base, int suffix);
 void swapAndAppend(std::vector<int>& data, int& degraded, int& upgraded);
 void generateData(std::vector<int>& data, size_t size, const int chance_of_duplication);
-void move4chars(std::vector<int>& data, const int index);
+void move4chars(std::vector<int>& data, const int index, int& numberOfMoves);
+void move4charsGroups(std::vector<int>& data, const int index);
 bool isSorted(std::vector<int> data);
-//bool worthSearching(std::vector<int> data);
 std::string vToStr(std::vector<int> data);
+std::string vToStrDebug(std::vector<int> data, int index);
 int heuristicLoss(std::vector<int> data);
 std::vector<int> convertToData(const char* arr, int size);
 

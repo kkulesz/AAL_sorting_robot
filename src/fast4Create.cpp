@@ -319,11 +319,8 @@ void swapAllColor(std::vector<int>& data, std::vector<int>& groups, int& numberO
 			break;
 		}
 
-		move4chars(data, index);
+		move4chars(data, index, numberOfMoves);
 		makeGroups(data, groups);
-
-
-		++numberOfMoves;
 	}
 }
 
@@ -351,9 +348,8 @@ bool rightSwap(std::vector<int>& data, std::vector<int>& groups, int& numberOfMo
 		}
 	}
 
-	move4chars(data, index);
-	move4chars(groups, index);
-	++numberOfMoves;
+	move4chars(data, index, numberOfMoves);
+    move4charsGroups(groups, index);
 
 	makeGroups(data, groups);
 
@@ -374,10 +370,9 @@ bool leftSwap(std::vector<int>& data, std::vector<int>& groups, int& numberOfMov
 		}
 	}
 
-	move4chars(data, index);
-	move4chars(groups, index);
+	move4chars(data, index, numberOfMoves);
+    move4charsGroups(groups, index);
 
-	++numberOfMoves;
 
 	makeGroups(data, groups);
 
@@ -393,10 +388,9 @@ bool swapCreatedGroup(std::vector<int>& data, std::vector<int>& groups, int& num
 		return false;
 	}
 
-	move4chars(data, index);
-	move4chars(groups, index);
+	move4chars(data, index, numberOfMoves);
+    move4charsGroups(groups, index);
 
-	++numberOfMoves;
 
 	makeGroups(data, groups);
 

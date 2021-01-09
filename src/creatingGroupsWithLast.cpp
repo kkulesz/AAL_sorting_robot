@@ -191,9 +191,7 @@ void swapAllColor(std::vector<int>& data, int& numberOfMoves, int color){
 			break;
 		}
 
-		move4chars(data, index);
-
-		++numberOfMoves;
+		move4chars(data, index, numberOfMoves);
 	}
 }
 
@@ -222,9 +220,7 @@ int creatingGroupsWithLast(std::vector<int>& data, bool versionWithSortFinish){
 			break;
 		}
 
-		move4chars(data, index);
-
-		++numberOfMoves;
+		move4chars(data, index,numberOfMoves);
 	}
 
 	// activate this if

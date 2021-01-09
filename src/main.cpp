@@ -1,8 +1,6 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
-#include <cstring>
-#include <cmath> // log
 #include <queue> //fifo
 #include <vector>
 #include <chrono>
@@ -17,40 +15,54 @@
 using namespace std;
 using namespace popl;
 
+bool DEBUG;
+
+typedef std::chrono::high_resolution_clock::time_point type_point;
+int switchCase(int algorithm, std::vector<int>& data, type_point& begin, type_point& end){
+    typedef enum ALGS{CREATING_GROUPS_WITH_LAST=1, FAST_4_CREATE, START_FROM_BEG, BRUTE_FORCE } ALGS;
+    int numberOfMoves;
+    switch (algorithm) {
+        case CREATING_GROUPS_WITH_LAST:
+            begin = chrono::high_resolution_clock::now();
+            numberOfMoves = creatingGroupsWithLast(data, true);
+            end = chrono::high_resolution_clock::now();
+            break;
+        case FAST_4_CREATE:
+            begin = chrono::high_resolution_clock::now();
+            numberOfMoves = fast4Create(data, true);
+            end = chrono::high_resolution_clock::now();
+            break;
+        case START_FROM_BEG:
+            begin = chrono::high_resolution_clock::now();
+            numberOfMoves = startFromBeg(data);
+            end = chrono::high_resolution_clock::now();
+            break;
+        case BRUTE_FORCE:
+            begin = chrono::high_resolution_clock::now();
+            numberOfMoves = bruteForce(data);
+            end = chrono::high_resolution_clock::now();
+            //TODO:tutaj wypisać jeszcze ile ruchów jakby iść tylko poprawną ścieżką
+            break;
+        default:
+            cout << "Wrong algorithm! Try -a{1,2}\n";
+            return -1;
+    }
+    return numberOfMoves;
+}
 
 void runMode1(int algorithm){
 
 	string input;
 	getline(cin, input);
 
-
-	//TODO:Comment out
-//	cout << input << "\n";
-
 	std::vector<int> data = convertToData( input.c_str(), input.size() );
 
-//	cout << vToStr(data) << "\n";
-
-
-	int numberOfMoves = 0;
 	auto begin = chrono::high_resolution_clock::now();
 	auto end = chrono::high_resolution_clock::now();
-	switch (algorithm) {
-		case 1:
-			begin = chrono::high_resolution_clock::now();
-			numberOfMoves = creatingGroupsWithLast(data, true);
-			end = chrono::high_resolution_clock::now();
-			break;
-		case 2:
-			begin = chrono::high_resolution_clock::now();
-			numberOfMoves = fast4Create(data, true);
-			end = chrono::high_resolution_clock::now();
-			break;
-		default:
-			cout << "Wrong algorithm! Try -a{1,2}\n";
-			return;
-	}
-
+    int numberOfMoves = switchCase(algorithm, data, begin, end);
+    if( numberOfMoves < 0){
+        return;
+    }
 	auto timeTaken = chrono::duration_cast<chrono::milliseconds>(end - begin).count();
 
 	cout << "Number of moves: " << numberOfMoves << "\n";
@@ -63,27 +75,14 @@ void runMode2(int algorithm, int problemSize, float generatorParam){
 	std::vector<int> data;
 	generateData(data, problemSize, (int)(generatorParam*100));
 
-	//TODO:Comment out
 	cout << "Generated input: \n" << vToStr(data) << "\n";
 
-	int numberOfMoves = 0;
 	auto begin = chrono::high_resolution_clock::now();
 	auto end = chrono::high_resolution_clock::now();
-	switch (algorithm){
-		case 1:
-			begin = chrono::high_resolution_clock::now();
-			numberOfMoves =  creatingGroupsWithLast(data, true);
-			end = chrono::high_resolution_clock::now();
-			break;
-		case 2:
-			begin = chrono::high_resolution_clock::now();
-			numberOfMoves = fast4Create(data, true);
-			end = chrono::high_resolution_clock::now();
-			break;
-		default:
-			cout << "Wrong algorithm! Try -a{1,2}\n";
-			return;
-	}
+    int numberOfMoves = switchCase(algorithm, data, begin, end);
+    if( numberOfMoves < 0){
+        return;
+    }
 
 	auto timeTaken = chrono::duration_cast<chrono::milliseconds>(end - begin).count();
 
@@ -103,29 +102,16 @@ void runMode3(int algorithm, int problemSize, int numberOfStepIterations, int st
 			data.clear();
 			generateData(data, size, (int)(generatorParam*100));
 
-			int numberOfMoves = 0;
 			auto begin = chrono::high_resolution_clock::now();
 			auto end = chrono::high_resolution_clock::now();
 			cout << "Size: " << size << "\n";
-			switch (algorithm){
-				case 1:
-					begin = chrono::high_resolution_clock::now();
-					numberOfMoves = creatingGroupsWithLast(data, true);
-					end = chrono::high_resolution_clock::now();
-					break;
-				case 2:
-					begin = chrono::high_resolution_clock::now();
-					numberOfMoves = fast4Create(data, true);
-					end = chrono::high_resolution_clock::now();
-					break;
-				default:
-					cout << "Wrong algorithm! Try -a{1,2}\n";
-					return;
-			}
+			int numberOfMoves = switchCase(algorithm, data, begin, end);
+            if( numberOfMoves < 0){
+                return;
+            }
 
 			auto timeTaken = chrono::duration_cast<chrono::milliseconds>(end - begin).count();
 
-			//TODO: comment
 			cout << "Number of moves: " << numberOfMoves << "\n";
 			cout << "Time taken by algorithm: " << timeTaken << "[ms]\n";
 			cout << vToStr(data) << "\n\n";
@@ -134,7 +120,17 @@ void runMode3(int algorithm, int problemSize, int numberOfStepIterations, int st
 }
 
 int main(int argc, char **argv) {
-
+    /*
+     * -m 1,2,3
+     * -n int
+     * -r int
+     * -s int
+     * -k int
+     * -d float
+     * -a 1,2,3,4
+     * -d int
+     * */
+    srand(time(nullptr)) ;
 	int mode;
 	int problemSize;
 	int numberOfRuns;
@@ -142,17 +138,27 @@ int main(int argc, char **argv) {
 	int numberOfStepIterations;
 	float generatorParam;
 	int algorithm;
+	int debug;
 
 	OptionParser op("Allowed options");
-	auto help_option = op.add<Switch>("h", "help", "produce help message");
-	auto mode_option = op.add<Value<int>>("m", "mode", "program mode", 1, &mode);
-	auto problemSize_option = op.add<Value<int>>("n", "size", "problem size", 100, &problemSize);
-	auto numberOfStepIterations_option = op.add<Value<int>>("k", "iterations", "number of step iterations", 5, &numberOfStepIterations);
-	auto step_option = op.add<Value<int>>("s", "step", "step size, increasing problem size", 100, &step);
-	auto numberOfRuns_option = op.add<Value<int>>("r", "runs", "number of problem runs", 25, &numberOfRuns);
-	auto generatorParam_option    = op.add<Value<float>>("d", "generator", "generator param", 0.5f, &generatorParam);
-	auto algorithm_option = op.add<Value<int>>("a", "algorithm", "1 - creatingGroupsWithLast, "
-															  "2 - fast4Create", 1, &algorithm);
+	auto help_option = op.add<Switch>
+	        ("h", "help", "produce help message");
+	auto mode_option = op.add<Value<int>>
+	        ("m", "mode", "program mode", 1, &mode);
+	auto problemSize_option = op.add<Value<int>>
+	        ("n", "size", "problem size", 100, &problemSize);
+	auto numberOfStepIterations_option = op.add<Value<int>>
+	        ("k", "iterations", "number of step iterations", 5, &numberOfStepIterations);
+	auto step_option = op.add<Value<int>>
+	        ("s", "step", "step size, increasing problem size", 100, &step);
+	auto numberOfRuns_option = op.add<Value<int>>
+	        ("r", "runs", "number of problem runs", 25, &numberOfRuns);
+	auto generatorParam_option = op.add<Value<float>>
+	        ("d", "generator", "generator param", 0.5f, &generatorParam);
+	auto algorithm_option = op.add<Value<int>>
+	        ("a", "algorithm", "1 - creatingGroupsWithLast,2 - fast4Create", 1, &algorithm);
+	auto debug_option = op.add<Value<int>>
+	        ("b", "debug","debug mode: 0 - non-debug, other -debug", 0, &debug);
 
 	op.parse(argc, argv);
 
@@ -163,8 +169,11 @@ int main(int argc, char **argv) {
 		cout << "This program needs option: -a. Defaulting to -a1\n";
 	}
 
+	if(debug){
+	    cout<<"Start debug mode!\n";
+	    DEBUG=true;
+	}
 
-	//TODO: add mode 4, where next swap candidates are shown
 	switch (mode){
 		case 1:
 
@@ -204,40 +213,9 @@ int main(int argc, char **argv) {
 			cout << "\n";
 			runMode3(algorithm, problemSize, numberOfStepIterations, step, numberOfRuns, generatorParam);
 			break;
-
 		default:
-			cout << "Wrong mode! Try -m{1,2,3}\n";
+			cout << "Wrong mode! Try -m{1,2,3, 5}\n";
 			return 1;
 	}
-
-
-//
-//    srand(time(nullptr)) ;
-//
-//    std::vector<int> data;
-//    generateData(data, DATA_SIZE, CHANCE_OF_DUPLICATION);
-//
-//	std::vector<int> dataForCGWL = data;
-//	std::vector<int> dataForF4C = data;
-//    std::cout<<"Rozmiar danych: "<< DATA_SIZE<<std::endl;
-//    std::cout<<"Prawdopodobienstwo powtorzenia: "<< CHANCE_OF_DUPLICATION<<"%"<<std::endl;
-//
-//
-////    bruteForce(data);
-////    std::cout<< vToStr(data) << "\n" <<std::endl;
-//	std::cout<< vToStr(dataForCGWL) <<std::endl;
-//	std::cout << "Number of moves: " << creatingGroupsWithLast(dataForCGWL, true) <<std::endl;
-//	std::cout<< vToStr(dataForCGWL) << "\n" <<std::endl;
-//
-//	std::cout<< vToStr(dataForF4C) <<std::endl;
-//	std::cout << "Number of moves: " << fast4Create(dataForF4C, true) <<std::endl;
-//	std::cout<< vToStr(dataForF4C) <<std::endl;
-
-
-//    const char* arr = "CCCCC";
-//    data = convertToData(arr, strlen(arr));
-//    startFromBeg(data);
-//    std::cout<< vToStr(data) <<std::endl;
-
     return 0;
 }

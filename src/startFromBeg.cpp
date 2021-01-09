@@ -8,6 +8,7 @@
 #include "../include/utilities.h"
 
 static int Cs = 0, Ms = 0, Ys = 0, Ks = 0;
+static int SIZE;
 
 int getNext(std::vector<int>& data, int howManySorted) {
     if(howManySorted<0){
@@ -21,26 +22,23 @@ int getNext(std::vector<int>& data, int howManySorted) {
     }else if(howManySorted < Cs+Ms+Ys+Ks){
         return K;
     }else if(howManySorted == Cs+Ms+Ys+Ks){
-        //std::cout<<"already sorted -- getNext()"<<std::endl;
         return -1;
     }else{
         throw;
     }
 }
 int getHowManySorted(std::vector<int>& data, int howManySorted){
-    int size = data.size();
-    for(int i = howManySorted; i<size; ++i){
+    //int size = data.size();
+    for(int i = howManySorted; i<SIZE; ++i){
         int expectedNext = getNext(data, i);
         if(expectedNext != data[i]){
             return i;
         }
     }
-
-    //std::cout<<"already sorted -- getHowManySorted()"<<std::endl;
-    return size;
+    return SIZE;
 }
 int find4thPlus1(std::vector<int>& data, int howManySorted, int next){
-    int max_iter = (data.size()-howManySorted)/4;
+    int max_iter = (SIZE-howManySorted)/4;
     for(int i = 0; i<max_iter; ++i){
         if( next == data[howManySorted + 4*i]){
             return i;//how many moves we need to make to get this element to the sorted position
@@ -49,33 +47,30 @@ int find4thPlus1(std::vector<int>& data, int howManySorted, int next){
     return -1;//we cannot find such element
 }
 int findPositionOfNext(std::vector<int>& data,int howManySorted,int next){
-    int size = data.size();
+    int size = SIZE;
     for(int i=howManySorted; i<size;++i){
         if( data[i] == next){
             return i;
         }
     }
-    //std::cout<<"findPositionOfNext()"<<std::endl;
-    //throw;
     return -1;//0
 }
+int manipulateEnd(std::vector<int>& data,int howManySorted, int indexOfNext, int& numberOfMoves){
+    //int size = data.size();
 
-int manipulateEnd(std::vector<int>& data,int howManySorted, int indexOfNext){
-    int size = data.size();
-
-    while( size-indexOfNext<4 ){
-        if(size-1 == indexOfNext){//last
-            move4chars(data, indexOfNext-4);
-            indexOfNext = size-5;
-        }else if(size-2 == indexOfNext){
-            move4chars(data, indexOfNext-3);
-            indexOfNext = size-4;
-        }else if(size-3 == indexOfNext){
-            move4chars(data, indexOfNext-2);
-            indexOfNext = size-3;
-        }else if(size-4 == indexOfNext){
-            move4chars(data, indexOfNext-1);
-            indexOfNext = size-2;
+    while( SIZE-indexOfNext<4 ){
+        if(SIZE-1 == indexOfNext){//last
+            move4chars(data, indexOfNext-4, numberOfMoves);
+            indexOfNext = SIZE-5;
+        }else if(SIZE-2 == indexOfNext){
+            move4chars(data, indexOfNext-3, numberOfMoves);
+            indexOfNext = SIZE-4;
+        }else if(SIZE-3 == indexOfNext){
+            move4chars(data, indexOfNext-2, numberOfMoves);
+            indexOfNext = SIZE-3;
+        }else if(SIZE-4 == indexOfNext){
+            move4chars(data, indexOfNext-1, numberOfMoves);
+            indexOfNext = SIZE-2;
         }
 
         //little break of the rules
@@ -92,25 +87,20 @@ int manipulateEnd(std::vector<int>& data,int howManySorted, int indexOfNext){
     }
     return -1;
 }
-int manipulateUntil4thPlus1(std::vector<int>& data, int howManySorted, int next){
+int manipulateUntil4thPlus1(std::vector<int>& data, int howManySorted, int next, int& numberOfMoves){
     //find position of next element
     int indexOfNext = findPositionOfNext(data, howManySorted, next);
-    int size = data.size();
-
 
     if(howManySorted == data.size() - 4){
         //heurystyka
         //move4chars(data, indexOfNext - 3 - (rand())%4);
-        //return -1;
-
         std::cout<<"manipulateUntil(), niemozliwe dalej posortowac, przy zalozeniu, ze nie przesuwamy posortowanych "<<std::endl;
-        throw;
-        //move4chars(data, howManySorted);
-        //return -1;
+        return -2;
+        //throw;
     }
 
-    if(size - indexOfNext < 4){
-        int neededMoves = manipulateEnd(data,howManySorted, indexOfNext);
+    if(SIZE - indexOfNext < 4){
+        int neededMoves = manipulateEnd(data,howManySorted, indexOfNext, numberOfMoves);
         if(neededMoves>0){
             return neededMoves;
         }
@@ -121,23 +111,23 @@ int manipulateUntil4thPlus1(std::vector<int>& data, int howManySorted, int next)
     next = getNext(data, howManySorted);
     indexOfNext = findPositionOfNext(data, howManySorted, next);
 
-    int offsetEnd = (size - howManySorted)%4;
+    int offsetEnd = (SIZE - howManySorted)%4;
     int offsetStart = (indexOfNext - howManySorted);//how many elements between sorted element and the one we need to be sorted
     if(offsetStart < 0){
         return -1;//already sorted
     }
     if(offsetEnd == 0){
-        move4chars(data, indexOfNext);
-        return (size-4-howManySorted)/4;
+        move4chars(data, indexOfNext, numberOfMoves);
+        return (SIZE-4-howManySorted)/4;
     }else if(offsetEnd == 3){//offsetStart always >0
-        move4chars(data, indexOfNext-1);
-        return (size-3-howManySorted)/4;
+        move4chars(data, indexOfNext-1, numberOfMoves);
+        return (SIZE-3-howManySorted)/4;
     }else if(offsetEnd == 2 && offsetStart>1){
-        move4chars(data, indexOfNext-2);
-        return (size-2-howManySorted)/4;
+        move4chars(data, indexOfNext-2, numberOfMoves);
+        return (SIZE-2-howManySorted)/4;
     }else if(offsetEnd == 1 && offsetStart>2){
-        move4chars(data, indexOfNext-3);
-        return (size-1-howManySorted)/4;
+        move4chars(data, indexOfNext-3, numberOfMoves);
+        return (SIZE-1-howManySorted)/4;
     }
 
     //if we are there, it means that we are in one of these positions:
@@ -147,27 +137,28 @@ int manipulateUntil4thPlus1(std::vector<int>& data, int howManySorted, int next)
 
     //1st takeover
     if(offsetEnd == 2){
-        move4chars(data, indexOfNext);
+        move4chars(data, indexOfNext, numberOfMoves);
         return -1;
     }
     //2nd takeover
     if(offsetEnd==1 && offsetStart==1) {
-        move4chars(data, indexOfNext - 1);
+        move4chars(data, indexOfNext - 1, numberOfMoves);
         return -1;
     }
 
     //3rd takeover
     if(offsetEnd==1 && offsetStart==2){
-        move4chars(data, indexOfNext-2);
+        move4chars(data, indexOfNext-2,numberOfMoves);
         return -1;
     }
-    std::cout<<"coś nieogarniete w manipulateUntil4thPlus1()"<<std::endl;
-    throw;
 
+    std::cout<<"manipulateUntil4thPlus1() throw"<<std::endl;
+    throw;
 }
 
 int startFromBeg(std::vector<int>& data){
     // count colors
+    SIZE = data.size();
     for(int color: data){
         if(color == C){
             ++Cs;
@@ -183,24 +174,27 @@ int startFromBeg(std::vector<int>& data){
     }
     int howManySorted = getHowManySorted(data, 0);
     int next = getNext(data, howManySorted);
+    int numberOfMoves = 0;
 
     int maxNumOfIterations = pow(data.size(), 1);
     while(--maxNumOfIterations){
-        //look for LookingFor(should be on (4n+1)th place after howManySorted)
+        //look for next(should be on (4n+1)th place after howManySorted)
         int neededMoves = find4thPlus1(data, howManySorted, next);
 
         //if he isn't on (4n+1)th place, then think of how to make him be there
         if(neededMoves < 0){
-            neededMoves = manipulateUntil4thPlus1(data, howManySorted, next);
+            neededMoves = manipulateUntil4thPlus1(data, howManySorted, next, numberOfMoves);
         }
+
 
         //if he is, then move him to the beginning
         for(int i = 0; i<neededMoves; ++i){
-            move4chars(data, howManySorted);
+            move4chars(data, howManySorted,numberOfMoves);
         }
 
-        if(isSorted(data)){
-            return 1;
+        // sorted or impossible to continue
+        if(isSorted(data) || neededMoves==-2){
+            return numberOfMoves;
         }
 
 

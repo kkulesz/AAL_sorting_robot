@@ -10,6 +10,8 @@
 int bruteForce(std::vector<int>& data){
 	size_t size = data.size();
 
+	int numberOfMoves = 0;
+
 	if(size <=4){
 		throw;
 	}
@@ -37,7 +39,7 @@ int bruteForce(std::vector<int>& data){
 		for(int i=0; i<num_of_children; ++i) {
 			std::vector<int> child;
 			child = tmp;
-			move4chars(child, i);
+			move4chars(child, i,numberOfMoves);
 			fifo.push(child);
 		}
 		++iterations;

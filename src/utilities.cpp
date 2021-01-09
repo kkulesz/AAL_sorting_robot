@@ -12,9 +12,14 @@
 #include <algorithm>
 #include <sstream>
 
-void swapAndAppend(std::vector<int>& data, char& degraded, char& upgraded){
+extern bool DEBUG;
+
+
+
+
+void swapAndAppend(std::vector<int>& data, int& degraded, int& upgraded){
 	std::swap(degraded, upgraded);
-	data.push_back(upgraded);
+	data.push_back(degraded);
 }
 
 void generateData(std::vector<int>& data, size_t size, const int chance_of_duplication){
@@ -23,8 +28,8 @@ void generateData(std::vector<int>& data, size_t size, const int chance_of_dupli
 	}
 	int chance_of_change = (100 - chance_of_duplication)/3;
 
-	char privileged;
-	char rest[3];
+	int privileged;
+	int rest[3];
 
 	int random = rand()%100;
 	if(random <= 25){//choose first privileged and set the rest
@@ -56,7 +61,7 @@ void generateData(std::vector<int>& data, size_t size, const int chance_of_dupli
 	}
 }
 
-void move4chars(std::vector<int>& data, const int index){
+void move4chars(std::vector<int>& data, const int index, int& numberOfMoves){
 	int size = data.size();
 	if(index < 0 || index > size-4){
 	    std::cout<<"move4chars throw- index: "<<index<<std::endl;
@@ -73,20 +78,52 @@ void move4chars(std::vector<int>& data, const int index){
 	int mid_len = 4;
 	int end_len = size - index-4;
 
-	//copy_to_tmp array
+	//copy mid and end
 	std::copy_n(data.begin() + index, mid_len, mid.begin());
 	std::copy_n(data.begin() + index + mid_len, end_len, end.begin());
+
+	if(DEBUG == true){
+        std::cout<<vToStrDebug(data, index)<<"\n";
+        std::cin.get();
+	}
 
 	//copy in different_order
 	std::copy_n(end.begin(), end_len, data.begin() + beg_len);
 	std::copy_n(mid.begin(), mid_len, data.begin() + beg_len + end_len);
-    std::cout<< vToStr(data) <<std::endl;
+
+    ++numberOfMoves;
+}
+
+void move4charsGroups(std::vector<int>& data, const int index){
+    int size = data.size();
+    if(index < 0 || index > size-4){
+        std::cout<<"move4chars throw- index: "<<index<<std::endl;
+        throw;
+    }
+
+    std::vector<int> mid;
+    std::vector<int> end;
+
+    mid.resize(size);
+    end.resize(size);
+
+    int beg_len = index;
+    int mid_len = 4;
+    int end_len = size - index-4;
+
+    //copy mid and end
+    std::copy_n(data.begin() + index, mid_len, mid.begin());
+    std::copy_n(data.begin() + index + mid_len, end_len, end.begin());
+
+    //copy in different_order
+    std::copy_n(end.begin(), end_len, data.begin() + beg_len);
+    std::copy_n(mid.begin(), mid_len, data.begin() + beg_len + end_len);
 }
 
 bool isSorted(std::vector<int> data){
 	size_t size = data.size();
 	if(size <= 0){
-	    std::cout<<"isSorted thow"<<std::endl;
+	    std::cout<<"isSorted throw"<<std::endl;
 		throw;
 	}
 
@@ -102,7 +139,6 @@ bool isSorted(std::vector<int> data){
 
 std::string vToStr(std::vector<int> data){
 	std::stringstream ss;
-
 	for(auto x: data){
 		switch(x){
 			case C:
@@ -118,35 +154,55 @@ std::string vToStr(std::vector<int> data){
 				ss << 'K';
 				break;
 			default:
-                std::cout<<"vToStr throw"<<std::endl;
+                std::cout<<"vToStr() throw"<<std::endl;
 				throw;
 		}
 	}
-
 	return ss.str();
+}
+
+std::string vToStrDebug(std::vector<int> data, int index){
+    std::stringstream ss;
+    for(int i=0; i<data.size(); ++i){
+        if(i == index || i == index+4){
+            ss << '^';
+        }
+        switch(data[i]){
+            case C:
+                ss << 'C';
+                break;
+            case M:
+                ss << 'M';
+                break;
+            case Y:
+                ss << 'Y';
+                break;
+            case K:
+                ss << 'K';
+                break;
+            default:
+                std::cout<<"vToStrDebug() throw"<<std::endl;
+                throw;
+        }
+    }
+    return ss.str();
 }
 
 int heuristicLoss(std::vector<int> data){
 	size_t size = data.size();
 	if( size <= 0 ){
-        std::cout<<"heuristicLoss throw"<<std::endl;
+        std::cout<<"heuristicLoss() throw"<<std::endl;
 		throw;
 	}
-
 	int loss=0;
-
 	std::vector<int> tmp;
 	tmp = data;
-
 	std::sort(tmp.begin(), tmp.end());
-
 	for (int i = 0; i < size; ++i) {
 		if( tmp[i] != data[i]){
 			++loss;
 		}
 	}
-
-
 	return loss;
 }
 
