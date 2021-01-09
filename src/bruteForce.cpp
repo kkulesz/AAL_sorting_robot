@@ -6,8 +6,9 @@
 
 #include <cstring>
 #include <queue> //fifo
+#include <cmath>
 
-int bruteForce(std::vector<int>& data){
+int bruteForce(std::vector<int>& data, int& bestNumOfMoves){
 	size_t size = data.size();
 
 	int numberOfMoves = 0;
@@ -31,9 +32,8 @@ int bruteForce(std::vector<int>& data){
 			while(!fifo.empty()){
 				fifo.pop();
 			}
+            bestNumOfMoves = (int)ceil(log(iterations)/log(num_of_children));
 			return iterations;
-			/*TODO:jeszze wypisać w ilu ruchach się to udało zrobić;
-			wystarczy zlogarytmowac liczbe iteracji logarytmem o podstawie "num_of_children"*/
 		}
 
 		for(int i=0; i<num_of_children; ++i) {

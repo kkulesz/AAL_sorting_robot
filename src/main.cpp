@@ -21,6 +21,7 @@ typedef std::chrono::high_resolution_clock::time_point type_point;
 int switchCase(int algorithm, std::vector<int>& data, type_point& begin, type_point& end){
     typedef enum ALGS{CREATING_GROUPS_WITH_LAST=1, FAST_4_CREATE, START_FROM_BEG, BRUTE_FORCE } ALGS;
     int numberOfMoves;
+    int bestNumOfMoves;//for bruteForce
     switch (algorithm) {
         case CREATING_GROUPS_WITH_LAST:
             begin = chrono::high_resolution_clock::now();
@@ -39,12 +40,12 @@ int switchCase(int algorithm, std::vector<int>& data, type_point& begin, type_po
             break;
         case BRUTE_FORCE:
             begin = chrono::high_resolution_clock::now();
-            numberOfMoves = bruteForce(data);
+            numberOfMoves = bruteForce(data,bestNumOfMoves);
             end = chrono::high_resolution_clock::now();
-            //TODO:tutaj wypisać jeszcze ile ruchów jakby iść tylko poprawną ścieżką
+            std::cout<<"Best possible number of moves: "<<bestNumOfMoves<<"\n";
             break;
         default:
-            cout << "Wrong algorithm! Try -a{1,2}\n";
+            cout << "Wrong algorithm! Try -a{1,2,3,4}\n";
             return -1;
     }
     return numberOfMoves;
@@ -214,7 +215,7 @@ int main(int argc, char **argv) {
 			runMode3(algorithm, problemSize, numberOfStepIterations, step, numberOfRuns, generatorParam);
 			break;
 		default:
-			cout << "Wrong mode! Try -m{1,2,3, 5}\n";
+			cout << "Wrong mode! Try -m{1,2,3}\n";
 			return 1;
 	}
     return 0;

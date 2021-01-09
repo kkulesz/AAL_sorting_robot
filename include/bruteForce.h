@@ -7,6 +7,6 @@
 
 #include "utilities.h"
 
-int bruteForce(std::vector<int>& data);
+int bruteForce(std::vector<int>& data,int&);
 
 #endif //PROJEKT_BRUTEFORCE_H
