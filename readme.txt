@@ -2,8 +2,8 @@
 
 Projekt: Robot CMYK
 
-Jakub Gałat 300209
-Konrad Kulesza 300
+Jakub Gałat
+Konrad Kulesza
 
 
 Zadanie polegało na znaleźeniu i przebadaniu algorytmów rozwiązujących problem robota układającego fabry w kolejności CMYK.
