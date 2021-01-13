@@ -33,13 +33,8 @@ int heuristicLossF4C(std::vector<int> data){
 	return counter;
 }
 
-bool worthSearching(std::vector<int> data) {
-
-	static int attempts = 0;
-	static int prevLoss = 0;
-	static int loss = 0;
-	static bool somethingWrong = false;
-	static std::vector<std::vector<int>> buffer;
+bool worthSearching(std::vector<int> data, int& attempts, int& prevLoss,
+                    int& loss, bool& somethingWrong, std::vector<std::vector<int>>& buffer) {
 
 	prevLoss = loss;
 	loss = heuristicLossF4C(data);
@@ -400,6 +395,12 @@ bool swapCreatedGroup(std::vector<int>& data, std::vector<int>& groups, int& num
 int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 	size_t size = data.size();
 
+    int attempts = 0;
+    int prevLoss = INT32_MAX;
+    int loss = INT32_MAX;
+    bool somethingWrong = false;
+    std::vector<std::vector<int>> buffer;
+
 	std::vector<int> groups;
 	groups.resize(size);
 	std::fill(groups.begin(), groups.end(), -1);
@@ -407,7 +408,7 @@ int fast4Create(std::vector<int>& data, bool versionWithSortFinish){
 	makeGroups(data, groups);
 
 	int numberOfMoves = 0;
-	while (!isSorted(data) && worthSearching(data)){
+	while (!isSorted(data) && worthSearching(data, attempts, prevLoss, loss, somethingWrong, buffer)){
 
 		if(!rightSwap(data, groups, numberOfMoves))
 			break;

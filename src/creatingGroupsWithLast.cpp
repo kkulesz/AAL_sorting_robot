@@ -31,13 +31,9 @@ int heuristicLossCGWL(const std::vector<int>& data){
 }
 
 
-bool worthSearching(const std::vector<int>& data){
+bool worthSearching(const std::vector<int>& data, int& attempts, int& prevLoss,
+                    int& loss, bool& somethingWrong, std::vector<std::vector<int>>& buffer){
 
-	static int attempts = 0;
-	static int prevLoss = 0;
-	static int loss = 0;
-	static bool somethingWrong = false;
-	static std::vector<std::vector<int>> buffer;
 
 	prevLoss = loss;
 	loss = heuristicLossCGWL(data);
@@ -206,11 +202,16 @@ void putAll4ToOrder(std::vector<int>& data, int& numberOfMoves){
 }
 
 int creatingGroupsWithLast(std::vector<int>& data, bool versionWithSortFinish){
+    int attempts = 0;
+    int prevLoss = INT32_MAX;
+    int loss = INT32_MAX;
+    bool somethingWrong = false;
+    std::vector<std::vector<int>> buffer;
 
 	int last = *(data.end()-1);
 
 	int numberOfMoves = 0;
-	while (!isSorted(data) && worthSearching(data)){
+	while (!isSorted(data) && worthSearching(data, attempts, prevLoss, loss, somethingWrong, buffer)){
 		last = *(data.end()-1);
 
 		int index = searchBest4ToSwap(data, last);

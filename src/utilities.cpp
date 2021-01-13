@@ -165,7 +165,7 @@ std::string vToStrDebug(std::vector<int> data, int index){
     std::stringstream ss;
     for(int i=0; i<data.size(); ++i){
         if(i == index || i == index+4){
-            ss << '^';
+            ss << '*';
         }
         switch(data[i]){
             case C:
